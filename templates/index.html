@@ -1,0 +1,860 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Cowabunga Machine</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a1a;
+      color: #e5e5e5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #0d0d0d;
+      border-bottom: 1px solid #333;
+      padding: 1.5rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .header p {
+      font-size: 0.875rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .tabs-container {
+      background: #0d0d0d;
+      border-bottom: 1px solid #333;
+      padding: 0 1.5rem;
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 1rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #999;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab:hover {
+      color: #e5e5e5;
+    }
+
+    .tab.active {
+      color: #fff;
+      border-bottom-color: #4a9eff;
+    }
+
+    .tab-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .delete-tab {
+      margin-left: 0.5rem;
+      padding: 0.25rem;
+      opacity: 0;
+      color: #666;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, color 0.2s;
+    }
+
+    .tab-group:hover .delete-tab {
+      opacity: 1;
+    }
+
+    .delete-tab:hover {
+      color: #ff4444;
+    }
+
+    .new-group-btn {
+      padding: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #999;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .new-group-btn:hover {
+      color: #4a9eff;
+    }
+
+    .new-group-input {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .new-group-input input {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 0.25rem;
+      width: 10rem;
+      color: #e5e5e5;
+    }
+
+    .new-group-input input:focus {
+      outline: none;
+      border-color: #4a9eff;
+    }
+
+    .new-group-input button {
+      padding: 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.2s;
+    }
+
+    .new-group-input button:hover {
+      color: #e5e5e5;
+    }
+
+    .container {
+      max-width: 90rem;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .card {
+      background: #0d0d0d;
+      border: 1px solid #333;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+    }
+
+    .stats-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stats-card h2 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #999;
+    }
+
+    .stats-count {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #4a9eff;
+      margin-top: 0.5rem;
+    }
+
+    .stats-count span {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: #999;
+    }
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.375rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #4a9eff;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #3d8fe8;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: #e5e5e5;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+    }
+
+    .table-container {
+      margin-top: 1.5rem;
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .table-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #e5e5e5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #333;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    thead {
+      background: #000;
+    }
+
+    th {
+      padding: 0.875rem 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    th:last-child {
+      text-align: right;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #333;
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: #1a1a1a;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 0.875rem 1rem;
+    }
+
+    td code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4a9eff;
+    }
+
+    td:last-child {
+      text-align: right;
+    }
+
+    .status-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.625rem;
+      border-radius: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-available {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+
+    .status-used {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .status-unknown {
+      background: rgba(107, 114, 128, 0.15);
+      color: #9ca3af;
+    }
+
+    .status-error {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+    }
+
+    .action-btn {
+      margin-left: 1rem;
+      color: #4a9eff;
+      background: none;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .action-btn:hover {
+      color: #3d8fe8;
+    }
+
+    .action-btn.delete {
+      color: #ef4444;
+    }
+
+    .action-btn.delete:hover {
+      color: #dc2626;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #e5e5e5;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-group p {
+      font-size: 0.875rem;
+      color: #999;
+      margin-bottom: 0.75rem;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 0.375rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      resize: vertical;
+      color: #e5e5e5;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: #4a9eff;
+    }
+
+    textarea::placeholder {
+      color: #666;
+    }
+
+    .empty-state {
+      padding: 3rem;
+      text-align: center;
+      color: #666;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid #333;
+      border-top-color: #4a9eff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .notice {
+      background: rgba(74, 158, 255, 0.1);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: #e5e5e5;
+    }
+
+    .notice.minimized {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      max-width: 300px;
+      padding: 0.75rem 1rem;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    .notice.minimized .notice-content {
+      display: none;
+    }
+
+    .notice.minimized .notice-header {
+      margin: 0;
+    }
+
+    .notice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .notice strong {
+      font-weight: 600;
+      color: #4a9eff;
+    }
+
+    .minimize-btn {
+      background: #1a1a1a;
+      color: #999;
+      border: 1px solid #333;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .minimize-btn:hover {
+      background: #333;
+      color: #e5e5e5;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>The Cowabunga Machine</h1>
+    <p>Code validator for Sophia.org promotional codes</p>
+  </div>
+
+  <div class="tabs-container">
+    <div class="tabs" id="tabs"></div>
+  </div>
+
+  <div class="container">
+    <div class="notice" id="notice">
+      <div class="notice-header">
+        <strong>System Status</strong>
+        <button class="minimize-btn" onclick="toggleNotice()" title="Minimize">−</button>
+      </div>
+      <div class="notice-content">
+        Backend operational. All codes stored locally in your browser.
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card stats-card">
+          <div>
+            <h2>Available Codes</h2>
+            <div class="stats-count">
+              <span id="availableCount">0</span> <span>available</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="copyAvailableCodes()" id="copyBtn">
+            Copy Codes
+          </button>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="table-header">
+            <h2>All Codes</h2>
+            <button class="btn btn-secondary" onclick="checkAllCodes()" id="checkAllBtn">
+              <span id="checkAllText">Check All Codes</span>
+            </button>
+          </div>
+          <div id="tableContainer"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="form-group">
+            <label>Add Codes</label>
+            <p>Paste multiple codes, one code per line. Each code should be 8 characters.</p>
+            <textarea id="codeInput" rows="8" placeholder="Paste codes here...&#10;4AROLXRT&#10;YQ90A8DV"></textarea>
+            <button class="btn btn-primary" onclick="addCodes()" style="width: 100%; margin-top: 0.75rem;">
+              Add Codes
+            </button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="notes" rows="6" placeholder="Add notes about this group..."></textarea>
+            <button class="btn btn-secondary" onclick="saveNotes()" style="width: 100%; margin-top: 0.75rem;">
+              Save Notes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle notice minimization
+    function toggleNotice() {
+      const notice = document.getElementById('notice');
+      notice.classList.toggle('minimized');
+      
+      if (notice.classList.contains('minimized')) {
+        notice.onclick = toggleNotice;
+      } else {
+        notice.onclick = null;
+      }
+    }
+
+    // State management
+    let groups = JSON.parse(localStorage.getItem('codeGroups')) || [
+      { id: 1, name: 'Group 1', codes: [], notes: '' }
+    ];
+    let activeGroupId = 1;
+
+    // Save to localStorage
+    function saveData() {
+      localStorage.setItem('codeGroups', JSON.stringify(groups));
+    }
+
+    // Get active group
+    function getActiveGroup() {
+      return groups.find(g => g.id === activeGroupId);
+    }
+
+    // Render tabs
+    function renderTabs() {
+      const tabsContainer = document.getElementById('tabs');
+      tabsContainer.innerHTML = '';
+
+      groups.forEach(group => {
+        const tabGroup = document.createElement('div');
+        tabGroup.className = 'tab-group';
+
+        const tab = document.createElement('button');
+        tab.className = `tab ${group.id === activeGroupId ? 'active' : ''}`;
+        tab.textContent = group.name;
+        tab.onclick = () => switchGroup(group.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-tab';
+        deleteBtn.innerHTML = '✕';
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteGroup(group.id);
+        };
+
+        tabGroup.appendChild(tab);
+        if (groups.length > 1) {
+          tabGroup.appendChild(deleteBtn);
+        }
+        tabsContainer.appendChild(tabGroup);
+      });
+
+      // Add new group button
+      const newBtn = document.createElement('button');
+      newBtn.className = 'new-group-btn';
+      newBtn.innerHTML = '+ New Group';
+      newBtn.onclick = showNewGroupInput;
+      tabsContainer.appendChild(newBtn);
+    }
+
+    function showNewGroupInput() {
+      const tabsContainer = document.getElementById('tabs');
+      const existing = document.querySelector('.new-group-input');
+      if (existing) return;
+
+      const inputDiv = document.createElement('div');
+      inputDiv.className = 'new-group-input';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Group name';
+      input.onkeypress = (e) => {
+        if (e.key === 'Enter') createNewGroup(input.value);
+      };
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.innerHTML = '✓';
+      confirmBtn.style.color = '#22c55e';
+      confirmBtn.onclick = () => createNewGroup(input.value);
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.innerHTML = '✕';
+      cancelBtn.onclick = () => inputDiv.remove();
+
+      inputDiv.appendChild(input);
+      inputDiv.appendChild(confirmBtn);
+      inputDiv.appendChild(cancelBtn);
+      tabsContainer.appendChild(inputDiv);
+
+      input.focus();
+    }
+
+    function createNewGroup(name) {
+      if (!name || !name.trim()) return;
+
+      const newId = Math.max(...groups.map(g => g.id), 0) + 1;
+      groups.push({ id: newId, name: name.trim(), codes: [], notes: '' });
+      activeGroupId = newId;
+      saveData();
+      renderAll();
+    }
+
+    function deleteGroup(id) {
+      if (groups.length === 1) {
+        alert('Cannot delete the last group');
+        return;
+      }
+      if (!confirm('Are you sure you want to delete this group?')) return;
+
+      groups = groups.filter(g => g.id !== id);
+      if (activeGroupId === id) {
+        activeGroupId = groups[0].id;
+      }
+      saveData();
+      renderAll();
+    }
+
+    function switchGroup(id) {
+      activeGroupId = id;
+      renderAll();
+    }
+
+    // Add codes
+    function addCodes() {
+      const input = document.getElementById('codeInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newCodes = text.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(code => ({
+          code: code,
+          status: 'unknown',
+          lastChecked: null
+        }));
+
+      const group = getActiveGroup();
+      group.codes.push(...newCodes);
+      saveData();
+      input.value = '';
+      renderCodes();
+      updateStats();
+    }
+
+    // Check code using Flask backend API
+    async function checkCode(code) {
+      try {
+        const response = await fetch('/api/check_code', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ code: code })
+        });
+
+        if (!response.ok) {
+          console.error('Response not OK:', response.status);
+          return 'error';
+        }
+
+        const result = await response.json();
+        console.log('API Response for', code, ':', result);
+
+        return result.status;
+      } catch (error) {
+        console.error('Error checking code:', error);
+        return 'error';
+      }
+    }
+
+    async function checkSingleCode(codeStr) {
+      const group = getActiveGroup();
+      const codeObj = group.codes.find(c => c.code === codeStr);
+      if (!codeObj) return;
+
+      const status = await checkCode(codeStr);
+      codeObj.status = status;
+      codeObj.lastChecked = new Date().toLocaleString();
+      saveData();
+      renderCodes();
+      updateStats();
+    }
+
+    async function checkAllCodes() {
+      const group = getActiveGroup();
+      if (group.codes.length === 0) return;
+
+      const btn = document.getElementById('checkAllBtn');
+      const text = document.getElementById('checkAllText');
+      btn.disabled = true;
+      text.innerHTML = '<span class="spinner"></span> Checking...';
+
+      for (let codeObj of group.codes) {
+        const status = await checkCode(codeObj.code);
+        codeObj.status = status;
+        codeObj.lastChecked = new Date().toLocaleString();
+        saveData();
+        renderCodes();
+        updateStats();
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+
+      btn.disabled = false;
+      text.textContent = 'Check All Codes';
+    }
+
+    function deleteCode(codeStr) {
+      const group = getActiveGroup();
+      group.codes = group.codes.filter(c => c.code !== codeStr);
+      saveData();
+      renderCodes();
+      updateStats();
+    }
+
+    function copyAvailableCodes() {
+      const group = getActiveGroup();
+      const available = group.codes
+        .filter(c => c.status === 'available')
+        .map(c => c.code)
+        .join('\n');
+
+      if (available) {
+        navigator.clipboard.writeText(available);
+        alert('Available codes copied to clipboard!');
+      } else {
+        alert('No available codes to copy');
+      }
+    }
+
+    function saveNotes() {
+      const notesTextarea = document.getElementById('notes');
+      const group = getActiveGroup();
+      group.notes = notesTextarea.value;
+      saveData();
+      alert('Notes saved!');
+    }
+
+    function renderCodes() {
+      const group = getActiveGroup();
+      const container = document.getElementById('tableContainer');
+
+      if (group.codes.length === 0) {
+        container.innerHTML = '<div class="empty-state">No codes added yet. Paste codes in the panel to get started.</div>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      group.codes.forEach(item => {
+        html += `
+          <tr>
+            <td><code>${item.code}</code></td>
+            <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+            <td>
+              <button class="action-btn" onclick="checkSingleCode('${item.code}')">Check</button>
+              <button class="action-btn delete" onclick="deleteCode('${item.code}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function updateStats() {
+      const group = getActiveGroup();
+      const available = group.codes.filter(c => c.status === 'available').length;
+      document.getElementById('availableCount').textContent = available;
+      document.getElementById('copyBtn').disabled = available === 0;
+    }
+
+    function renderNotes() {
+      const group = getActiveGroup();
+      document.getElementById('notes').value = group.notes || '';
+    }
+
+    function renderAll() {
+      renderTabs();
+      renderCodes();
+      updateStats();
+      renderNotes();
+    }
+
+    // Initialize
+    renderAll();
+  </script>
+</body>
+</html>
